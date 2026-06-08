@@ -61,21 +61,23 @@
        <select id="departmentSelect" class="w-full"></select>
       </div>
       <div>
-       <label class="block text-sm font-medium text-slate-600 mb-1">選取此班表會用到的 班別/假別組/考勤組</label>
-        <button type="button" id="shiftChooseBtn" onclick="goShiftChoosePage()" class="w-full text-left px-3 py-2 border border-slate-300 rounded-md bg-white hover:bg-slate-50 text-slate-700">請選擇</button>
+      <label class="block text-sm font-medium text-slate-600 mb-1">選取此班表會用到的 班別/節假日/考勤組</label>
+       <button type="button" id="shiftChooseBtn" onclick="goShiftChoosePage()" class="w-full text-left px-3 py-2 border border-slate-300 rounded-md bg-white hover:bg-slate-50 text-slate-700">前往統一管理頁</button>
       </div>
       </div>
      </section>
      <section class="bg-white rounded-xl shadow-sm p-5 space-y-4">
-      <h2 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i data-lucide="clock" class="w-5 h-5 text-amber-600"></i>班別排班</h2>
-      <div id="shiftList" class="space-y-2"></div><button onclick="showAddShift()" class="px-4 py-2 bg-amber-50 text-amber-700 rounded-md text-sm font-medium hover:bg-amber-100 transition flex items-center gap-1"><i data-lucide="plus" class="w-4 h-4"></i>新增班別</button>
+      <h2 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i data-lucide="clock" class="w-5 h-5 text-amber-600"></i>班別設定</h2>
+      <p class="text-xs text-slate-500">此區可編輯快照，但不會和統一管理頁同步。</p>
+      <div id="shiftList" class="space-y-2"></div>
      </section>
      <section class="bg-white rounded-xl shadow-sm p-5 space-y-4">
       <h2 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i data-lucide="calendar-off" class="w-5 h-5 text-red-500"></i>節假日設定</h2>
+      <p class="text-xs text-slate-500">此區可編輯快照，但不會和統一管理頁同步。</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
        <div>
         <label class="block text-sm font-medium text-slate-600 mb-2">假別組管理</label>
-        <div id="holidayGroupList" class="space-y-2"></div><button onclick="openHolidayGroupPage()" class="mt-3 px-3 py-1.5 bg-red-50 text-red-600 rounded-md text-sm font-medium hover:bg-red-100 transition flex items-center gap-1"><i data-lucide="plus" class="w-4 h-4"></i>新增假別組</button>
+        <div id="holidayGroupList" class="space-y-2"></div>
        </div>
        <div>
         <label class="block text-sm font-medium text-slate-600 mb-2">彈性假期</label>
@@ -87,11 +89,12 @@
       </div>
      </section>
      <section class="bg-white rounded-xl shadow-sm p-5 space-y-4">
-      <h2 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-green-600"></i>排班人員</h2>
+      <h2 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-green-600"></i>考勤設定</h2>
+      <p class="text-xs text-slate-500">此區可編輯快照，但不會和統一管理頁同步。</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
        <div>
         <label class="block text-sm font-medium text-slate-600 mb-2">考勤組</label>
-        <div class="space-y-2" id="attendanceGroupList"></div><button onclick="openShiftGroupPage()" class="mt-3 px-3 py-1.5 bg-green-50 text-green-700 rounded-md text-sm font-medium hover:bg-green-100 transition flex items-center gap-1"><i data-lucide="plus" class="w-4 h-4"></i>新增考勤組</button>
+        <div class="space-y-2" id="attendanceGroupList"></div>
        </div>
        <div>
         <label class="block text-sm font-medium text-slate-600 mb-2">臨時人員</label>
@@ -139,16 +142,74 @@
       <input type="checkbox" id="shiftCrossDay" onchange="onShiftTimeChange()">
       <span>允許跨天（例如：22:00 ~ 06:00）</span>
     </label>
-    <div><label class="block text-sm font-medium text-slate-600 mb-1">休息時數（小時）</label><input type="number" id="shiftRest" min="0" step="0.5" placeholder="0" class="w-full" oninput="updateShiftHoursPreview()">
-     <p class="text-xs text-slate-500 mt-1">勞基法：每繼續工作 4 小時至少休息 30 分鐘（僅工作 4 小時可免）。預設依時段自動帶入，可手動調高。</p>
-     <p class="text-xs text-slate-500 mt-1">總工時 = 結束 - 起始 - 休息；預览：<span id="shiftHoursPreview" class="font-medium text-amber-700">0h</span>、最低法定休息：<span id="shiftMinRest" class="font-medium text-orange-700">0h</span></p>
-    </div>
-    <div class="border-t border-slate-200 pt-4 mt-4">
-     <label class="block text-sm font-medium text-slate-600 mb-3 flex items-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-orange-600"></i>可加班時段（此班別專用）</label>
-     <div class="grid grid-cols-2 gap-3">
-      <div><label class="block text-sm font-medium text-slate-600 mb-1">起始時間</label><input type="time" id="shiftOtStart" class="w-full">
+    <div class="space-y-3">
+     <label class="block text-sm font-medium text-slate-600">休息設定</label>
+     <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+      <input type="checkbox" id="shiftHasRest" onchange="updateShiftRestUI(); updateShiftHoursPreview()">
+      <span>有休息時間</span>
+     </label>
+     <div id="shiftRestConfig" class="space-y-3 pl-6">
+      <div class="flex items-center gap-4 text-sm text-slate-700">
+       <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="shiftRestType" id="shiftRestTypeFixed" value="fixed" onchange="updateShiftRestUI(); updateShiftHoursPreview()">固定</label>
+       <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="shiftRestType" id="shiftRestTypeFlexible" value="flexible" onchange="updateShiftRestUI(); updateShiftHoursPreview()">非固定</label>
       </div>
-      <div><label class="block text-sm font-medium text-slate-600 mb-1">結束時間</label><input type="time" id="shiftOtEnd" class="w-full">
+      <div id="shiftRestFixedFields" class="grid grid-cols-2 gap-3">
+       <div><label class="block text-sm font-medium text-slate-600 mb-1">開始時間</label><input type="time" id="shiftRestStart" value="12:00" class="w-full" oninput="updateShiftHoursPreview()"></div>
+       <div><label class="block text-sm font-medium text-slate-600 mb-1">結束時間</label><input type="time" id="shiftRestEnd" value="13:00" class="w-full" oninput="updateShiftHoursPreview()"></div>
+      </div>
+      <div id="shiftRestFlexibleFields" class="hidden">
+       <label class="block text-sm font-medium text-slate-600 mb-1">休息時數</label>
+       <div class="flex items-center gap-2">
+      <input type="number" id="shiftRestMinutes" min="0" max="480" step="30" value="60" class="w-32" oninput="updateShiftHoursPreview()">
+      <span class="text-sm text-slate-600">分鐘</span>
+       </div>
+      </div>
+      <p class="text-xs text-slate-500">休息時間不會列入上班時數中。</p>
+     </div>
+     <p class="text-xs text-slate-500">勞基法：每繼續工作 4 小時至少休息 30 分鐘（僅工作 4 小時可免）。</p>
+     <p class="text-xs text-slate-500">總工時 = 結束 - 起始 - 休息；預覽：<span id="shiftHoursPreview" class="font-medium text-amber-700">0h</span>、最低法定休息：<span id="shiftMinRest" class="font-medium text-orange-700">0h</span></p>
+    </div>
+    <div class="border-t border-slate-200 pt-4 mt-4 space-y-4">
+     <label class="block text-sm font-medium text-slate-600 flex items-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-orange-600"></i>加班設置</label>
+     <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+      <input type="checkbox" id="shiftAutoCountOvertime" onchange="updateShiftOvertimeUI()">
+      <span>系統自動統計加班時數</span>
+     </label>
+     <div id="shiftOvertimeRules" class="space-y-4 rounded-xl border border-slate-200 p-4">
+      <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+       <input type="checkbox" id="shiftCountEarlyArrivalAsOvertime" onchange="updateShiftOvertimeUI()">
+       <span>比上班時間早到，自動設為加班</span>
+      </label>
+      <div class="border-t border-slate-200"></div>
+      <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+       <input type="checkbox" id="shiftCountLateDepartureAsOvertime" onchange="updateShiftOvertimeUI()">
+       <span>比下班時間晚退，自動設為加班</span>
+      </label>
+      <div id="shiftOvertimeDetailFields" class="space-y-5 pl-9">
+       <div>
+      <label class="block text-sm font-medium text-slate-600 mb-1">最短加班時間</label>
+      <div class="flex items-center gap-2">
+       <input type="number" id="shiftMinOvertimeMinutes" min="0" max="720" step="1" value="30" class="w-32">
+       <span class="text-sm text-slate-600">分鐘</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">若最短加班時間設為 30 分鐘，排定的下班時間為下午 5 點，打卡時間至少需為 5 點半以後系統才會判定此為加班。</p>
+       </div>
+       <div>
+      <label class="block text-sm font-medium text-slate-600 mb-1">最長加班時間</label>
+      <div class="flex items-center gap-2">
+       <input type="number" id="shiftMaxOvertimeMinutes" min="0" max="720" step="1" value="360" class="w-32">
+       <span class="text-sm text-slate-600">分鐘</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">若最長加班時間設為 240 分鐘，不論打卡時間多晚，加班時數最多以 4 小時計。</p>
+       </div>
+       <div>
+      <label class="block text-sm font-medium text-slate-600 mb-1">加班前的休息時間</label>
+      <div class="flex items-center gap-2">
+       <input type="number" id="shiftRestBeforeOvertimeMinutes" min="0" max="240" step="1" value="30" class="w-32">
+       <span class="text-sm text-slate-600">分鐘</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">若設為 30 分鐘，則加班開始前 30 分鐘不列入加班時間。註：依勞基法規定，每工作 4 小時需有 30 分鐘以上的休息時間。</p>
+       </div>
       </div>
      </div>
     </div>
@@ -346,6 +407,7 @@
   const NEW_SCHEDULE_DRAFT_KEY = 'shiftMgmt:newScheduleDraft';
   const _newPageParams = new URLSearchParams(window.location.search);
   const _isReturnFromShiftChoose = _newPageParams.get('index') === '-1';
+  const _editShiftName = (_newPageParams.get('editShiftName') || '').trim();
 
   // 一般開啟「新增班表」頁時，清除舊草稿，避免帶入上次新增資料。
   // 只有從 shift-choose 返回（index=-1）才保留並載入草稿。
@@ -542,8 +604,6 @@
   function deleteHolidayGroup(groupName) {
     if (confirm(`確定要刪除「${groupName}」嗎？`)) {
       delete holidayGroups[groupName];
-      allowedScopeCustomized = true;
-      allowedHolidayGroupNames = allowedHolidayGroupNames.filter(name => name !== groupName);
       renderHolidays();
     }
   }
@@ -586,7 +646,6 @@
     }
 
     holidayGroups[groupName] = [...editingHolidayDates];
-    if (!allowedHolidayGroupNames.includes(groupName)) allowedHolidayGroupNames.push(groupName);
     renderHolidays();
     renderAllowedOptions();
     closeHolidayGroupModal();
@@ -926,6 +985,97 @@
   function calcWorkHours(start, end, rest, crossDay = false) {
     return Math.max(0, calcDurationHours(start, end, crossDay) - (Number(rest) || 0));
   }
+
+  function calcTimeRangeMinutes(start, end, crossDay = false) {
+    if (!start || !end) return 0;
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+    let diffMinutes = (eh * 60 + em) - (sh * 60 + sm);
+    if (crossDay && diffMinutes <= 0) diffMinutes += 24 * 60;
+    return Math.max(0, diffMinutes);
+  }
+
+  function normalizeRestMinutes(value, fallback = 0, max = 480) {
+    const parsed = Number.parseInt(String(value), 10);
+    if (Number.isNaN(parsed)) return fallback;
+    return Math.max(0, Math.min(max, parsed));
+  }
+
+  function normalizeShiftRestSettings(shift = {}) {
+    const restHours = Number(shift.rest) || 0;
+    const fallbackMinutes = Math.round(restHours * 60);
+    const hasRest = typeof shift.hasRest === 'boolean' ? shift.hasRest : restHours > 0;
+    const restType = shift.restType === 'fixed' ? 'fixed' : 'flexible';
+    const restMinutes = normalizeRestMinutes(shift.restMinutes, fallbackMinutes, 480);
+    const restStart = shift.restStart || '12:00';
+    const restEnd = shift.restEnd || addMinutesToTime(restStart, restMinutes || 60);
+    const fixedMinutes = calcTimeRangeMinutes(restStart, restEnd, !!shift.crossDay && restEnd <= restStart);
+
+    return {
+      hasRest,
+      restType,
+      restStart,
+      restEnd,
+      restMinutes: restType === 'fixed' ? (fixedMinutes || restMinutes || 60) : (restMinutes || 60),
+      rest: hasRest
+        ? ((restType === 'fixed' ? (fixedMinutes || restMinutes || 60) : (restMinutes || 60)) / 60)
+        : 0
+    };
+  }
+
+  function applyShiftRestFields(shift = {}) {
+    const rest = normalizeShiftRestSettings(shift);
+    document.getElementById('shiftHasRest').checked = rest.hasRest;
+    document.getElementById('shiftRestTypeFixed').checked = rest.restType === 'fixed';
+    document.getElementById('shiftRestTypeFlexible').checked = rest.restType !== 'fixed';
+    document.getElementById('shiftRestStart').value = rest.restStart;
+    document.getElementById('shiftRestEnd').value = rest.restEnd;
+    document.getElementById('shiftRestMinutes').value = rest.restMinutes;
+    updateShiftRestUI();
+  }
+
+  function readShiftRestFields() {
+    const hasRest = !!document.getElementById('shiftHasRest').checked;
+    const restType = document.getElementById('shiftRestTypeFixed').checked ? 'fixed' : 'flexible';
+    const restStart = document.getElementById('shiftRestStart').value || '12:00';
+    const restEnd = document.getElementById('shiftRestEnd').value || '13:00';
+    const flexibleMinutes = normalizeRestMinutes(document.getElementById('shiftRestMinutes').value, 60, 480);
+    const fixedMinutes = calcTimeRangeMinutes(restStart, restEnd, restEnd <= restStart);
+    const restMinutes = hasRest
+      ? (restType === 'fixed' ? (fixedMinutes || flexibleMinutes || 60) : flexibleMinutes)
+      : 0;
+    return {
+      hasRest,
+      restType,
+      restStart,
+      restEnd,
+      restMinutes,
+      rest: restMinutes / 60
+    };
+  }
+
+  function buildRestSummary(shift) {
+    const rest = normalizeShiftRestSettings(shift);
+    if (!rest.hasRest || !rest.rest) return '休息 0.0h';
+    if (rest.restType === 'fixed') {
+      return `休息 ${rest.restStart}-${rest.restEnd}`;
+    }
+    return `休息 ${(rest.restMinutes / 60).toFixed(1)}h`;
+  }
+
+  function updateShiftRestUI() {
+    const hasRest = !!document.getElementById('shiftHasRest').checked;
+    const isFixed = !!document.getElementById('shiftRestTypeFixed').checked;
+    const config = document.getElementById('shiftRestConfig');
+    const fixedFields = document.getElementById('shiftRestFixedFields');
+    const flexibleFields = document.getElementById('shiftRestFlexibleFields');
+    if (config) {
+      config.classList.toggle('opacity-50', !hasRest);
+      config.classList.toggle('pointer-events-none', !hasRest);
+    }
+    if (fixedFields) fixedFields.classList.toggle('hidden', !hasRest || !isFixed);
+    if (flexibleFields) flexibleFields.classList.toggle('hidden', !hasRest || isFixed);
+  }
   // 勞基法 §35：繼續工作 4 小時至少休息 30 分鐘；僅工作 4 小時可免。
   function minRequiredRest(durationHours) {
     if (durationHours <= 4) return 0;
@@ -937,17 +1087,23 @@
     const crossDay = !!document.getElementById('shiftCrossDay')?.checked;
     const duration = calcDurationHours(start, end, crossDay);
     const minRest = minRequiredRest(duration);
-    const restEl = document.getElementById('shiftRest');
-    const cur = parseFloat(restEl.value) || 0;
-    // 若使用者尚未手動調高，則自動帶入最低法定休息
-    if (cur < minRest) restEl.value = minRest;
+    const currentRest = readShiftRestFields();
+    if (currentRest.rest < minRest) {
+      document.getElementById('shiftHasRest').checked = minRest > 0;
+      if (currentRest.restType === 'fixed') {
+        document.getElementById('shiftRestEnd').value = addMinutesToTime(document.getElementById('shiftRestStart').value || '12:00', Math.round(minRest * 60));
+      } else {
+        document.getElementById('shiftRestMinutes').value = Math.round(minRest * 60);
+      }
+    }
+    updateShiftRestUI();
     updateShiftHoursPreview();
   }
   function updateShiftHoursPreview() {
     const start = document.getElementById('shiftStart').value;
     const end = document.getElementById('shiftEnd').value;
     const crossDay = !!document.getElementById('shiftCrossDay')?.checked;
-    const rest = parseFloat(document.getElementById('shiftRest').value) || 0;
+    const rest = readShiftRestFields().rest;
     const hours = calcWorkHours(start, end, rest, crossDay);
     const minRest = minRequiredRest(calcDurationHours(start, end, crossDay));
     const hoursEl = document.getElementById('shiftHoursPreview');
@@ -960,9 +1116,136 @@
     }
   }
 
+  function normalizeOvertimeMinutes(value, fallback, max = 720) {
+    const parsed = Number.parseInt(String(value), 10);
+    if (Number.isNaN(parsed)) return fallback;
+    return Math.max(0, Math.min(max, parsed));
+  }
+
+  function timeToMinutes(value) {
+    if (!value || typeof value !== 'string' || !value.includes(':')) return null;
+    const [hours, minutes] = value.split(':').map(Number);
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+    return hours * 60 + minutes;
+  }
+
+  function addMinutesToTime(value, deltaMinutes) {
+    const base = timeToMinutes(value);
+    if (base == null) return '';
+    const dayMinutes = 24 * 60;
+    const normalized = ((base + deltaMinutes) % dayMinutes + dayMinutes) % dayMinutes;
+    const hours = String(Math.floor(normalized / 60)).padStart(2, '0');
+    const minutes = String(normalized % 60).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  function diffMinutesFromBase(baseTime, targetTime) {
+    const base = timeToMinutes(baseTime);
+    const target = timeToMinutes(targetTime);
+    if (base == null || target == null) return null;
+    return target >= base ? (target - base) : ((24 * 60 - base) + target);
+  }
+
+  function normalizeShiftOvertimeSettings(shift) {
+    const hasLegacyOvertime = !!((shift && shift.otStart) || (shift && shift.otEnd));
+    const legacyMinMinutes = diffMinutesFromBase(shift && shift.end, shift && shift.otStart);
+    const legacyMaxMinutes = diffMinutesFromBase(shift && shift.end, shift && shift.otEnd);
+    const autoCountOvertime = typeof shift?.autoCountOvertime === 'boolean'
+      ? shift.autoCountOvertime
+      : hasLegacyOvertime;
+    const countEarlyArrivalAsOvertime = !!shift?.countEarlyArrivalAsOvertime;
+    const countLateDepartureAsOvertime = typeof shift?.countLateDepartureAsOvertime === 'boolean'
+      ? shift.countLateDepartureAsOvertime
+      : hasLegacyOvertime;
+    const minOvertimeMinutes = normalizeOvertimeMinutes(
+      shift?.minOvertimeMinutes,
+      legacyMinMinutes != null ? legacyMinMinutes : 30,
+      720
+    );
+    const maxOvertimeMinutes = normalizeOvertimeMinutes(
+      shift?.maxOvertimeMinutes,
+      legacyMaxMinutes != null ? Math.max(legacyMaxMinutes, minOvertimeMinutes) : 360,
+      720
+    );
+    const restBeforeOvertimeMinutes = normalizeOvertimeMinutes(shift?.restBeforeOvertimeMinutes, 30, 240);
+
+    return {
+      autoCountOvertime,
+      countEarlyArrivalAsOvertime,
+      countLateDepartureAsOvertime,
+      minOvertimeMinutes,
+      maxOvertimeMinutes: Math.max(maxOvertimeMinutes, minOvertimeMinutes),
+      restBeforeOvertimeMinutes
+    };
+  }
+
+  function applyShiftOvertimeFields(shift) {
+    const overtime = normalizeShiftOvertimeSettings(shift || {});
+    document.getElementById('shiftAutoCountOvertime').checked = overtime.autoCountOvertime;
+    document.getElementById('shiftCountEarlyArrivalAsOvertime').checked = overtime.countEarlyArrivalAsOvertime;
+    document.getElementById('shiftCountLateDepartureAsOvertime').checked = overtime.countLateDepartureAsOvertime;
+    document.getElementById('shiftMinOvertimeMinutes').value = overtime.minOvertimeMinutes;
+    document.getElementById('shiftMaxOvertimeMinutes').value = overtime.maxOvertimeMinutes;
+    document.getElementById('shiftRestBeforeOvertimeMinutes').value = overtime.restBeforeOvertimeMinutes;
+    updateShiftOvertimeUI();
+  }
+
+  function readShiftOvertimeFields(shiftEnd) {
+    const autoCountOvertime = !!document.getElementById('shiftAutoCountOvertime').checked;
+    const countEarlyArrivalAsOvertime = !!document.getElementById('shiftCountEarlyArrivalAsOvertime').checked;
+    const countLateDepartureAsOvertime = !!document.getElementById('shiftCountLateDepartureAsOvertime').checked;
+    const minOvertimeMinutes = normalizeOvertimeMinutes(document.getElementById('shiftMinOvertimeMinutes').value, 30, 720);
+    const maxOvertimeMinutes = Math.max(
+      normalizeOvertimeMinutes(document.getElementById('shiftMaxOvertimeMinutes').value, 360, 720),
+      minOvertimeMinutes
+    );
+    const restBeforeOvertimeMinutes = normalizeOvertimeMinutes(document.getElementById('shiftRestBeforeOvertimeMinutes').value, 30, 240);
+    const useLateWindow = autoCountOvertime && countLateDepartureAsOvertime;
+
+    return {
+      autoCountOvertime,
+      countEarlyArrivalAsOvertime,
+      countLateDepartureAsOvertime,
+      minOvertimeMinutes,
+      maxOvertimeMinutes,
+      restBeforeOvertimeMinutes,
+      otStart: useLateWindow ? addMinutesToTime(shiftEnd, minOvertimeMinutes) : '',
+      otEnd: useLateWindow ? addMinutesToTime(shiftEnd, maxOvertimeMinutes) : ''
+    };
+  }
+
+  function buildOvertimeSummary(shift) {
+    const overtime = normalizeShiftOvertimeSettings(shift);
+    if (!overtime.autoCountOvertime) return '';
+    const modes = [
+      overtime.countEarlyArrivalAsOvertime ? '早到' : '',
+      overtime.countLateDepartureAsOvertime ? '晚退' : ''
+    ].filter(Boolean).join('/');
+    const detail = (overtime.countEarlyArrivalAsOvertime || overtime.countLateDepartureAsOvertime)
+      ? `門檻 ${overtime.minOvertimeMinutes} / 上限 ${overtime.maxOvertimeMinutes} 分`
+      : '未啟用規則';
+    return `${modes || '自動統計'} ${detail}`;
+  }
+
+  function updateShiftOvertimeUI() {
+    const autoEnabled = !!document.getElementById('shiftAutoCountOvertime').checked;
+    const earlyEnabled = !!document.getElementById('shiftCountEarlyArrivalAsOvertime').checked;
+    const lateEnabled = !!document.getElementById('shiftCountLateDepartureAsOvertime').checked;
+    const rulesEl = document.getElementById('shiftOvertimeRules');
+    const detailEl = document.getElementById('shiftOvertimeDetailFields');
+    if (rulesEl) {
+      rulesEl.classList.toggle('opacity-50', !autoEnabled);
+      rulesEl.classList.toggle('pointer-events-none', !autoEnabled);
+    }
+    if (detailEl) {
+      detailEl.classList.toggle('hidden', !autoEnabled || (!earlyEnabled && !lateEnabled));
+    }
+  }
+
   function renderShifts() {
     document.getElementById('shiftList').innerHTML = shifts.map((s, i) => {
-      const rest = Number(s.rest) || 0;
+      const restSummary = buildRestSummary(s);
+      const overtimeSummary = buildOvertimeSummary(s);
       return `<div class="flex items-center gap-3 p-3 bg-amber-50 rounded-lg">
         <input type="checkbox" checked class="rounded">
         <div class="flex-1">
@@ -972,8 +1255,9 @@
         <span class="text-xs text-slate-500">${s.start} - ${s.end}</span>
         ${s.crossDay ? '<span class="chip bg-indigo-100 text-indigo-700">跨天</span>' : ''}
         <span class="chip bg-amber-100 text-amber-800">工時 ${s.hours}h</span>
-        <span class="chip bg-orange-100 text-orange-800">休息 ${rest.toFixed(1)}h</span>
-        <button onclick="editShift(${i})" class="ml-auto text-blue-400 hover:text-blue-600 text-sm">編輯</button>
+        <span class="chip bg-orange-100 text-orange-800">${restSummary}</span>
+        ${overtimeSummary ? `<span class="chip bg-rose-100 text-rose-800">${overtimeSummary}</span>` : ''}
+        <button onclick="openShiftDetailPage(${i})" class="ml-auto text-blue-400 hover:text-blue-600 text-sm">編輯</button>
         <button onclick="deleteShift(${i})" class="text-red-400 hover:text-red-600 text-sm">刪除</button>
       </div>`;
     }).join('');
@@ -988,8 +1272,6 @@
     if (!s) return;
     if (confirm(`確定要刪除「${s.name}」嗎？`)) {
       shifts.splice(i, 1);
-      allowedScopeCustomized = true;
-      allowedShiftNames = allowedShiftNames.filter(name => name !== s.name);
       renderShifts();
     }
   }
@@ -1008,9 +1290,8 @@
       ? s.crossDay
       : ((s.start || '') && (s.end || '') && (s.end < s.start));
     document.getElementById('shiftCrossDay').checked = !!inferredCrossDay;
-    document.getElementById('shiftRest').value = (s.rest != null ? s.rest : 0);
-    document.getElementById('shiftOtStart').value = s.otStart || '';
-    document.getElementById('shiftOtEnd').value = s.otEnd || '';
+    applyShiftRestFields(s);
+    applyShiftOvertimeFields(s);
     updateShiftHoursPreview();
     document.getElementById('shiftModal').classList.remove('hidden');
   }
@@ -1053,7 +1334,7 @@
         ${weekdayHtml}
       </div>
       <button onclick="openShiftGroupPage(${i})" class="text-blue-400 hover:text-blue-600 text-sm px-2">編輯</button>
-      <button onclick="allowedScopeCustomized=true;allowedAttendanceGroupNames=allowedAttendanceGroupNames.filter(name=>name!=='${g.name.replace(/'/g, "\\'")}');attendanceGroups.splice(${i},1);renderAttendanceGroups()" class="text-red-400 hover:text-red-600 text-sm">刪除</button>
+      <button onclick="attendanceGroups.splice(${i},1);renderAttendanceGroups()" class="text-red-400 hover:text-red-600 text-sm">刪除</button>
     </div>`;
     }).join('');
     renderAllowedOptions();
@@ -1065,6 +1346,14 @@
     params.set('source', 'new');
     if (groupIndex >= 0) params.set('groupIndex', String(groupIndex));
     window.location.href = `shift-group.html?${params.toString()}`;
+  }
+
+  function openShiftDetailPage(shiftIndex = -1) {
+    syncGlobalData();
+    const params = new URLSearchParams();
+    params.set('source', 'new');
+    if (shiftIndex >= 0) params.set('shiftIndex', String(shiftIndex));
+    window.location.href = `shift-detail.html?${params.toString()}`;
   }
 
   function showAddAttendanceGroup() {
@@ -1235,7 +1524,7 @@
     if (!block) return;
     const options = shifts.map(s => s.name);
     if (options.length === 0) {
-      block.innerHTML = '<div class="px-3 py-3 text-sm text-slate-500">尚未設定班別，請先到「班別排班」新增。</div>';
+      block.innerHTML = '<div class="px-3 py-3 text-sm text-slate-500">尚未設定班別，請先到「班別設定」新增。</div>';
       return;
     }
     block.innerHTML = WEEKDAYS.map(w => {
@@ -1322,7 +1611,6 @@
     } else {
       attendanceGroups.push(payload);
     }
-    if (!allowedAttendanceGroupNames.includes(payload.name)) allowedAttendanceGroupNames.push(payload.name);
     editingGroupIndex = -1;
     renderAttendanceGroups();
     renderAllowedOptions();
@@ -1344,9 +1632,15 @@
     document.getElementById('shiftStart').value = '08:00';
     document.getElementById('shiftEnd').value = '12:00';
     document.getElementById('shiftCrossDay').checked = false;
-    document.getElementById('shiftRest').value = '0';
-    document.getElementById('shiftOtStart').value = '';
-    document.getElementById('shiftOtEnd').value = '';
+    applyShiftRestFields({ hasRest: false, restType: 'fixed', restStart: '12:00', restEnd: '13:00', restMinutes: 60, rest: 0 });
+    applyShiftOvertimeFields({
+      autoCountOvertime: true,
+      countEarlyArrivalAsOvertime: false,
+      countLateDepartureAsOvertime: true,
+      minOvertimeMinutes: 30,
+      maxOvertimeMinutes: 360,
+      restBeforeOvertimeMinutes: 30
+    });
     updateShiftHoursPreview();
     document.getElementById('shiftModal').classList.remove('hidden');
   }
@@ -1441,9 +1735,9 @@
     const start = document.getElementById('shiftStart').value;
     const end = document.getElementById('shiftEnd').value;
     const crossDay = !!document.getElementById('shiftCrossDay').checked;
-    const rest = parseFloat(document.getElementById('shiftRest').value) || 0;
-    const otStart = document.getElementById('shiftOtStart').value || '';
-    const otEnd = document.getElementById('shiftOtEnd').value || '';
+    const restConfig = readShiftRestFields();
+    const rest = restConfig.rest;
+    const overtime = readShiftOvertimeFields(end);
     const duration = calcDurationHours(start, end, crossDay);
     const hours = calcWorkHours(start, end, rest, crossDay);
 
@@ -1479,7 +1773,7 @@
 
     if (editingShiftIndex >= 0 && shifts[editingShiftIndex]) {
       const oldName = shifts[editingShiftIndex].name;
-      shifts[editingShiftIndex] = { name, shortName, start, end, crossDay, hours, rest, otStart, otEnd };
+      shifts[editingShiftIndex] = { name, shortName, start, end, crossDay, hours, ...restConfig, ...overtime };
       // 同步更新考勤組中引用此班別名稱
       if (oldName !== name) {
         attendanceGroups.forEach(g => {
@@ -1494,9 +1788,8 @@
         renderAttendanceGroups();
       }
     } else {
-      shifts.push({ name, shortName, start, end, crossDay, hours, rest, otStart, otEnd });
+      shifts.push({ name, shortName, start, end, crossDay, hours, ...restConfig, ...overtime });
     }
-    if (!allowedShiftNames.includes(name)) allowedShiftNames.push(name);
     renderShifts();
     renderAllowedOptions();
     closeShiftModal();
@@ -1514,6 +1807,10 @@
   renderBranchAndDepartment();
   renderAllowedOptions();
   renderAllowedSummary();
+  if (_editShiftName) {
+    const _targetShiftIndex = shifts.findIndex(s => s && s.name === _editShiftName);
+    if (_targetShiftIndex >= 0) openShiftDetailPage(_targetShiftIndex);
+  }
   document.getElementById('scheduleName').value = document.getElementById('scheduleName').value || '';
   document.getElementById('startDate').value = document.getElementById('startDate').value || '';
   document.getElementById('endDate').value = document.getElementById('endDate').value || '';
@@ -1593,7 +1890,7 @@
     if (allowedAttendanceGroupNames.length) selectedTypes.push('考勤組');
 
     if (allowedScopeCustomized && selectedTypes.length) {
-      btn.textContent = `已選擇 ${selectedTypes.join(' / ')}`;
+      btn.textContent = '請選擇';
       btn.classList.remove('text-blue-600', 'font-medium');
       btn.classList.add('text-slate-700');
     } else {
