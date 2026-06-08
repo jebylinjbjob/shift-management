@@ -2,6 +2,48 @@
 
 純前端排班管理系統，以 HTML + Tailwind CSS + Vanilla JS 實作，所有資料儲存於瀏覽器 `localStorage`，無需後端服務。
 
+## Docker / Kubernetes 部署
+
+此專案為純靜態前端，可直接用 `nginx` 容器提供頁面，再部署到 Kubernetes。
+
+### GitHub Actions 自動推送 Image
+
+已提供 workflow：`.github/workflows/publish-image.yml`
+
+- 觸發條件：push 到 `main`，且變更包含 `Dockerfile`、`.dockerignore`、任一 `.html` 頁面，或手動執行 `workflow_dispatch`
+- 推送位置：`ghcr.io/jbjobhr/shift-management`
+- 標籤：`latest`、`sha-<commit>`
+
+此 workflow 使用 GitHub 內建的 `GITHUB_TOKEN` 推送到 GitHub Container Registry（GHCR），不需要另外建立 Docker Hub 帳號。
+
+如果是第一次使用，請確認 repository 的 Actions 與 Packages 權限允許 workflow 發佈 package。
+
+### 1. 建立映像檔
+
+```bash
+docker build -t ghcr.io/jbjobhr/shift-management:latest .
+docker push ghcr.io/jbjobhr/shift-management:latest
+```
+
+若使用上方 workflow，自動推送後可直接沿用 `k8s/deployment.yaml` 內預設的 image 路徑，不需要再修改。
+
+### 2. 部署到 Kubernetes
+
+```bash
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+```
+
+目前 `k8s/service.yaml` 使用 `ClusterIP`。若需要對外提供服務，可再搭配 Ingress，或依叢集環境改成 `LoadBalancer`。
+
+### 3. 更新版本
+
+```bash
+docker build -t ghcr.io/jbjobhr/shift-management:latest .
+docker push ghcr.io/jbjobhr/shift-management:latest
+kubectl rollout restart deployment/shift-management
+```
+
 ---
 
 ## 近期更新（最近 12 次 Push）

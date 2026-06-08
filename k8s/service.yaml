@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shift-management
+  labels:
+    app: shift-management
+spec:
+  selector:
+    app: shift-management
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  type: ClusterIP

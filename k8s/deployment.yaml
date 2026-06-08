@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shift-management
+  labels:
+    app: shift-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shift-management
+  template:
+    metadata:
+      labels:
+        app: shift-management
+    spec:
+      containers:
+        - name: shift-management
+          image: ghcr.io/jbjobhr/shift-management:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /index.html
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /index.html
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+
