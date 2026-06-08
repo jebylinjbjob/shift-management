@@ -10,11 +10,13 @@
 
 已提供 workflow：`.github/workflows/publish-image.yml`
 
-- 觸發條件：push 到 `main`，且變更包含 `Dockerfile`、`.dockerignore`、任一 `.html` 頁面，或手動執行 `workflow_dispatch`
+- 觸發條件：push 到 `dev`，且變更包含 `Dockerfile`、`.dockerignore`、任一 `.html` 頁面，或手動執行 `workflow_dispatch`
 - 推送位置：`ghcr.io/jbjobhr/shift-management`
 - 標籤：`latest`、`sha-<commit>`
 
 此 workflow 使用 GitHub 內建的 `GITHUB_TOKEN` 推送到 GitHub Container Registry（GHCR），不需要另外建立 Docker Hub 帳號。
+
+目前以 `dev` 作為發佈分支，因此 push 到 `dev` 時會更新 `latest`；`sha-<commit>` 則用來保留可追蹤的版本標籤。
 
 如果是第一次使用，請確認 repository 的 Actions 與 Packages 權限允許 workflow 發佈 package。
 
