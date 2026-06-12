@@ -35,6 +35,17 @@
           <input type="text" id="groupName" placeholder="如：A組 - 倉儲" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm">
         </div>
 
+        <div id="scopeSelectorWrap" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">分公司/分店/案場</label>
+            <select id="scopeBranchSelect" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"></select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">部門/工作地</label>
+            <select id="scopeDepartmentSelect" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"></select>
+          </div>
+        </div>
+
         <div>
           <div class="flex items-center gap-4 mb-1">
             <label class="text-sm font-bold text-slate-700">排班型態</label>
@@ -125,6 +136,7 @@
               <label class="flex items-center gap-1 text-sm cursor-pointer px-2 py-1 rounded hover:bg-white/70"><input type="radio" name="rotatingSystemType" value="twoWeek" onchange="updateRotatingSystemUI()"><span>兩週變形</span></label>
               <label class="flex items-center gap-1 text-sm cursor-pointer px-2 py-1 rounded hover:bg-white/70"><input type="radio" name="rotatingSystemType" value="fourWeek" onchange="updateRotatingSystemUI()"><span>四週變形</span></label>
               <label class="flex items-center gap-1 text-sm cursor-pointer px-2 py-1 rounded hover:bg-white/70"><input type="radio" name="rotatingSystemType" value="eightWeek" onchange="updateRotatingSystemUI()"><span>八週變形</span></label>
+              <label class="flex items-center gap-1 text-sm cursor-pointer px-2 py-1 rounded hover:bg-white/70"><input type="radio" name="rotatingSystemType" value="none" onchange="updateRotatingSystemUI()"><span>無規律（個人排班管理）</span></label>
             </div>
             <div id="rotatingEffectiveWrap" class="grid grid-cols-1 md:grid-cols-2 gap-3 hidden">
               <div>
@@ -388,6 +400,71 @@
     if (Array.isArray(draft.allPunchLocations)) allPunchLocations = draft.allPunchLocations;
   }
 
+  function splitScopeValues(raw) {
+    return String(raw || '')
+      .split(/[\/,，、；;｜|\s]+/)
+      .map(v => v.trim())
+      .filter(Boolean);
+  }
+
+  function pickScopeArray(existing, fallbackRaw) {
+    if (Array.isArray(existing) && existing.length) {
+      return Array.from(new Set(existing.map(v => String(v || '').trim()).filter(Boolean)));
+    }
+    return Array.from(new Set(splitScopeValues(fallbackRaw)));
+  }
+
+  function buildScopeOptions(globalList, scheduleRaw, existingRaw) {
+    const all = new Set();
+    if (Array.isArray(globalList)) {
+      globalList.forEach(item => splitScopeValues(item).forEach(v => all.add(v)));
+    }
+    splitScopeValues(scheduleRaw).forEach(v => all.add(v));
+    splitScopeValues(existingRaw).forEach(v => all.add(v));
+    return Array.from(all).filter(Boolean).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+  }
+
+  function renderScopeSelectors(existing = null) {
+    const branchSelect = document.getElementById('scopeBranchSelect');
+    const departmentSelect = document.getElementById('scopeDepartmentSelect');
+    if (!branchSelect || !departmentSelect) return;
+
+    const scheduleBranch = sched && sched.branch ? sched.branch : '';
+    const scheduleDepartment = sched && sched.department ? sched.department : '';
+    const currentBranch = existing && existing.branch ? existing.branch : '';
+    const currentDepartment = existing && existing.department ? existing.department : '';
+
+    const branchOptions = buildScopeOptions(G.branches, scheduleBranch, currentBranch);
+    const departmentOptions = buildScopeOptions(G.departments, scheduleDepartment, currentDepartment);
+
+    branchSelect.innerHTML = `<option value="">未指定</option>` + branchOptions.map(v => `<option value="${v}">${v}</option>`).join('');
+    departmentSelect.innerHTML = `<option value="">未指定</option>` + departmentOptions.map(v => `<option value="${v}">${v}</option>`).join('');
+    branchSelect.value = currentBranch;
+    departmentSelect.value = currentDepartment;
+    if (branchSelect.value !== currentBranch) branchSelect.value = '';
+    if (departmentSelect.value !== currentDepartment) departmentSelect.value = '';
+  }
+
+  function buildScopeFields(existing = null) {
+    const scheduleBranch = sched && sched.branch ? sched.branch : '';
+    const scheduleDepartment = sched && sched.department ? sched.department : '';
+    const selectedBranch = (document.getElementById('scopeBranchSelect')?.value || '').trim();
+    const selectedDepartment = (document.getElementById('scopeDepartmentSelect')?.value || '').trim();
+    const hasScopeInputs = !!document.getElementById('scopeBranchSelect') && !!document.getElementById('scopeDepartmentSelect');
+    const branches = hasScopeInputs
+      ? (selectedBranch ? [selectedBranch] : [])
+      : pickScopeArray(existing && existing.branches, existing && existing.branch ? existing.branch : scheduleBranch);
+    const departments = hasScopeInputs
+      ? (selectedDepartment ? [selectedDepartment] : [])
+      : pickScopeArray(existing && existing.departments, existing && existing.department ? existing.department : scheduleDepartment);
+    return {
+      branch: branches[0] || '',
+      branches,
+      department: departments[0] || '',
+      departments
+    };
+  }
+
   function defaultWeekdayShifts() {
     const first = (shifts[0] && shifts[0].name) ? [shifts[0].name] : [];
     return { mon: [...first], tue: [...first], wed: [...first], thu: [...first], fri: [...first], sat: [], sun: [] };
@@ -406,15 +483,19 @@
     { value: 'general', label: '一般（單週）', hint: '每週循環，適用於一般一例一休排班。' },
     { value: 'twoWeek', label: '兩週變形', hint: '需填寫生效日期與輪班明細。' },
     { value: 'fourWeek', label: '四週變形', hint: '需填寫生效日期與輪班明細。' },
-    { value: 'eightWeek', label: '八週變形', hint: '需填寫生效日期與輪班明細。' }
+    { value: 'eightWeek', label: '八週變形', hint: '需填寫生效日期與輪班明細。' },
+    { value: 'none', label: '無規律（個人排班管理）', hint: '不使用輪班制度，只保留固定班別或手動排班。' }
   ];
 
   const ROTATING_SYSTEM_LABELS = {
     general: '一般（單週）',
+    none: '無規律（個人排班管理）',
     twoWeek: '兩週變形',
     fourWeek: '四週變形',
     eightWeek: '八週變形'
   };
+
+  const ROTATING_SYSTEMS_WITH_DETAILS = ['twoWeek', 'fourWeek', 'eightWeek'];
 
   const ROTATING_REST_VALUE = '__rest__';
   const ROTATING_REST_LABEL = '休息日';
@@ -486,8 +567,9 @@
     currentGroupSystemType = checked ? checked.value : 'general';
     const detailWrap = document.getElementById('rotatingDetailWrap');
     const effectiveWrap = document.getElementById('rotatingEffectiveWrap');
-    if (detailWrap) detailWrap.classList.toggle('hidden', currentGroupSystemType === 'general');
-    if (effectiveWrap) effectiveWrap.classList.toggle('hidden', currentGroupSystemType === 'general');
+    const hasDetails = ROTATING_SYSTEMS_WITH_DETAILS.includes(currentGroupSystemType);
+    if (detailWrap) detailWrap.classList.toggle('hidden', !hasDetails);
+    if (effectiveWrap) effectiveWrap.classList.toggle('hidden', !hasDetails);
     syncWeekdayShiftsLayout();
   }
 
@@ -515,6 +597,8 @@
     const isEdit = Number.isInteger(editingGroupIndex) && editingGroupIndex >= 0 && editingGroupIndex < attendanceGroups.length;
     const pageTitle = document.getElementById('pageTitle');
     pageTitle.textContent = isEdit ? '編輯考勤組' : '新增考勤組';
+    const scopeWrap = document.getElementById('scopeSelectorWrap');
+    if (scopeWrap) scopeWrap.style.display = mode === 'library' ? 'grid' : 'none';
 
     if (isEdit) {
       const group = attendanceGroups[editingGroupIndex];
@@ -541,6 +625,7 @@
       document.getElementById('groupName').value = group.name || '';
       const radio = document.querySelector(`input[name="employmentType"][value="${currentGroupEmploymentType}"]`);
       if (radio) radio.checked = true;
+      renderScopeSelectors(group);
     } else {
       currentGroupPunchLocations = Array.isArray(allPunchLocations) ? [...allPunchLocations] : [];
       currentGroupEmploymentType = 'fulltime';
@@ -550,6 +635,7 @@
       currentGroupRotatingDetails = [];
       const defaultRadio = document.querySelector('input[name="employmentType"][value="fulltime"]');
       if (defaultRadio) defaultRadio.checked = true;
+      renderScopeSelectors(null);
     }
 
     const systemRadio = document.querySelector(`input[name="rotatingSystemType"][value="${currentGroupSystemType}"]`);
@@ -706,7 +792,7 @@
   function renderRotatingSystemOptions() {
     return ROTATING_SYSTEM_OPTIONS.map(item => `
       <label class="flex items-center gap-1 text-sm cursor-pointer px-2 py-1 rounded hover:bg-slate-50">
-        <input type="radio" name="rotatingSystemType" value="${item.value}" ${item.value === 'general' ? 'checked' : ''} onchange="updateRotatingSystemUI()">
+        <input type="radio" name="rotatingSystemType" value="${item.value}" ${item.value === currentGroupSystemType ? 'checked' : ''} onchange="updateRotatingSystemUI()">
         <span>${item.label}</span>
       </label>
     `).join('');
@@ -876,7 +962,7 @@
 
     const systemType = document.querySelector('input[name="rotatingSystemType"]:checked')?.value || 'general';
     const rotatingDetails = currentGroupRotatingDetails.map(normalizeRotatingDetail).filter(item => item.shiftName);
-    if (systemType !== 'general') {
+    if (ROTATING_SYSTEMS_WITH_DETAILS.includes(systemType)) {
       if (!effectiveDate) {
         alert('請選擇生效日期');
         return;
@@ -892,6 +978,11 @@
       }
     }
 
+    const existing = Number.isInteger(editingGroupIndex) && editingGroupIndex >= 0 && editingGroupIndex < attendanceGroups.length
+      ? attendanceGroups[editingGroupIndex]
+      : null;
+    const scopeFields = buildScopeFields(existing);
+
     const payload = {
       name: groupName,
       members: [...currentGroupMembers],
@@ -899,12 +990,13 @@
       employmentType: currentGroupEmploymentType,
       systemType,
       systemLabel: ROTATING_SYSTEM_LABELS[systemType] || '一般（單週）',
-      effectiveDate: systemType === 'general' ? '' : effectiveDate,
-      rotatingDetails: systemType === 'general' ? [] : rotatingDetails,
-      details: systemType === 'general' ? [] : rotatingDetails,
+      effectiveDate: ROTATING_SYSTEMS_WITH_DETAILS.includes(systemType) ? effectiveDate : '',
+      rotatingDetails: ROTATING_SYSTEMS_WITH_DETAILS.includes(systemType) ? rotatingDetails : [],
+      details: ROTATING_SYSTEMS_WITH_DETAILS.includes(systemType) ? rotatingDetails : [],
       weekdayShifts: { ...currentGroupWeekdayShifts },
       punchLocations: [...currentGroupPunchLocations],
-      workOnHoliday: currentGroupEmploymentType === 'parttime'
+      workOnHoliday: currentGroupEmploymentType === 'parttime',
+      ...scopeFields
     };
 
     if (Number.isInteger(editingGroupIndex) && editingGroupIndex >= 0 && editingGroupIndex < attendanceGroups.length) {
